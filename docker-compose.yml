@@ -1,0 +1,56 @@
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  usuario-service:
+    build:
+      context: ./usuario
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/usuarios
+    depends_on:
+      - mongo
+    networks:
+      - app-network  # Asegúrate de que esté conectado a la red
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - app-network  # Asegúrate de que esté conectado a la red
+
+  producto-service:
+    build:
+      context: ./producto
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/producto
+    depends_on:
+      - mongo
+    networks:
+      - app-network  # Asegúrate de que esté conectado a la red
+
+  auth-usuario-service:
+    build:
+      context: ./auth
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/auth
+    depends_on:
+      - mongo
+    networks:
+      - app-network  # Asegúrate de que esté conectado a la red
+
+volumes:
+  mongo-data:
